@@ -182,9 +182,11 @@ for i in range(len(imgfilelist)):
 
 
     # shallow reverb
-    reverb_img=intp(reverb_img,mid_img,args.reverb_depth) if args.reverb_depth!=0 else mid_img
-    out_img=intp(mid_img,reverb_img) if args.reverb_depth!=0 else mid_img
-
+    if args.reverb_depth!=0:
+        reverb_img=intp(mid_img,reverb_img,args.reverb_depth)
+        out_img=intp(mid_img,reverb_img)
+    else:
+        out_img=mid_img
 
     write_img=(out_img[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]
 
