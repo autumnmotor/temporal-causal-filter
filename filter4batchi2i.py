@@ -124,7 +124,7 @@ reverb_img=None
 
 def read_img(imgfilepath):
     global w,h
-    img = cv2.imread(imgfilepath, cv2.IMREAD_UNCHANGED)
+    img = cv2.imread(imgfilepath, cv2.IMREAD_COLOR)
     img = (torch.tensor(img.transpose(2, 0, 1)).to(device) / 255.).unsqueeze(0)
     n, c, h, w = img.shape
     ph = ((h - 1) // 32 + 1) * 32
@@ -174,13 +174,16 @@ for i in range(len(imgfilelist)):
             return img1
 
     # shallow low pass filter
-    v_img=intp(intp(img,prvs_img),intp(img,next_img))
+#    v_img=intp(intp(img,prvs_img),intp(img,next_img))
+#    mid_img=intp(img,v_img)
+
+    v_img=intp(prvs_img,next_img)
     mid_img=intp(img,v_img)
 
-    # shallow reverb
-    reverb_img=intp(reverb_img,mid_img,args.reverb_depth)
 
-    out_img=intp(mid_img,reverb_img)
+    # shallow reverb
+    reverb_img=intp(reverb_img,mid_img,args.reverb_depth) if args.reverb_depth!=0 else mid_img
+    out_img=intp(mid_img,reverb_img) if args.reverb_depth!=0 else mid_img
 
 
     write_img=(out_img[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]
